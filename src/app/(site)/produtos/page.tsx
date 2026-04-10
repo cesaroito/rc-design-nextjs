@@ -12,8 +12,6 @@ export const metadata: Metadata = {
     "CuidoDeVocê e ArcadePulse — produtos prontos para empresas e cidades. Implante hoje, escale amanhã.",
 };
 
-export const revalidate = false;
-
 interface SanityProduct {
   _id: string;
   title: string;

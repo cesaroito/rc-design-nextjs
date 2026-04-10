@@ -3,45 +3,58 @@ import { notFound } from "next/navigation";
 import { sanityFetch } from "@/lib/sanity/fetch";
 import { projectBySlugQuery, projectSlugsQuery } from "@/lib/sanity/queries";
 import { CasePageClient } from "@/components/sections/CasePageClient";
-import {
-  getProjectPlaceholderBySlug,
-  projectPlaceholderSlugs,
-  type ProjectRecord,
-} from "@/content/projectPlaceholders";
-
-export const revalidate = false;
 
 interface Props {
   params: Promise<{ slug: string }>;
 }
 
-async function getProjectBySlug(slug: string): Promise<ProjectRecord | null> {
-  const project = await sanityFetch<ProjectRecord>({
-    query: projectBySlugQuery,
-    params: { slug },
-    tags: ["projects"],
-  });
-
-  return project ?? getProjectPlaceholderBySlug(slug) ?? null;
+interface SanityProject {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  client?: string;
+  tagline: string;
+  brandColor?: string;
+  tags?: string[];
+  techStack?: string[];
+  liveUrl?: string;
+  challenge?: unknown[];
+  solution?: unknown[];
+  results?: { metric: string; value: string; description?: string }[];
+  heroImage?: { asset: { url: string }; alt?: string };
+  screenshots?: { asset: { url: string }; alt?: string; caption?: string }[];
+  services?: { _id: string; title: string; slug: { current: string } }[];
+  testimonial?: {
+    quote: string;
+    authorName: string;
+    authorRole?: string;
+    company?: string;
+  };
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+  };
 }
 
-// Gera as rotas estáticas para cada case
 export async function generateStaticParams() {
   const slugs = await sanityFetch<{ slug: string }[]>({
     query: projectSlugsQuery,
     tags: ["projects"],
   });
 
-  return Array.from(
-    new Set([...(slugs ?? []).map((item) => item.slug), ...projectPlaceholderSlugs]),
-  ).map((slug) => ({ slug }));
+  return (slugs ?? []).map((item) => ({
+    slug: typeof item.slug === "string" ? item.slug : item.slug,
+  }));
 }
 
-// Gera metadata dinâmica por projeto
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
 
-  const project = await getProjectBySlug(slug);
+  const project = await sanityFetch<SanityProject>({
+    query: projectBySlugQuery,
+    params: { slug },
+    tags: ["projects"],
+  });
 
   if (!project) return { title: "Projeto não encontrado" };
 
@@ -54,7 +67,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CasePage({ params }: Props) {
   const { slug } = await params;
 
-  const project = await getProjectBySlug(slug);
+  const project = await sanityFetch<SanityProject>({
+    query: projectBySlugQuery,
+    params: { slug },
+    tags: ["projects"],
+  });
 
   if (!project) notFound();
 
