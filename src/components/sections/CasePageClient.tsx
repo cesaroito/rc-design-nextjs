@@ -1,5 +1,6 @@
 "use client";
 
+import { PortableText, PortableTextBlock } from "@portabletext/react";
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -160,9 +161,8 @@ export function CasePageClient({ project }: CasePageClientProps) {
                   src={project.heroImage.asset.url}
                   alt={project.heroImage.alt ?? project.title}
                   fill
-                  priority
-                  sizes="(min-width: 1024px) 50vw, 100vw"
-                  className="object-cover"
+                  sizes="(min-width: 640px) 50vw, 100vw"
+                  className="object-cover hover:scale-105 transition-transform duration-500"
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
@@ -225,6 +225,42 @@ export function CasePageClient({ project }: CasePageClientProps) {
                       >
                         {s.title}
                       </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Screenshots */}
+              {project.screenshots && project.screenshots.length > 0 && (
+                <div className="mb-10">
+                  <div className="text-xs font-semibold text-[rgba(1,44,64,0.4)] uppercase tracking-widest mb-4 font-(family-name:--font-dm-sans)">
+                    Screenshots
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {project.screenshots.map((screenshot, i) => (
+                      <div
+                        key={i}
+                        className="relative aspect-video rounded-xl overflow-hidden border border-[rgba(0,112,140,0.12)] hover:shadow-lg transition-all"
+                      >
+                        <Image
+                          src={screenshot.asset.url}
+                          alt={
+                            screenshot.alt ??
+                            screenshot.caption ??
+                            `Screenshot ${i + 1}`
+                          }
+                          fill
+                          sizes="(min-width: 640px) 50vw, 100vw"
+                          className="object-cover hover:scale-105 transition-transform duration-500"
+                        />
+                        {screenshot.caption ? (
+                          <div className="absolute bottom-0 left-0 right-0 bg-[#012C40]/80 backdrop-blur-sm px-3 py-2">
+                            <p className="text-xs text-white/80 font-(family-name:--font-dm-sans)">
+                              {screenshot.caption}
+                            </p>
+                          </div>
+                        ) : null}
+                      </div>
                     ))}
                   </div>
                 </div>
@@ -323,6 +359,9 @@ export function CasePageClient({ project }: CasePageClientProps) {
             {Array.isArray(project.challenge) &&
             project.challenge.length > 0 ? (
               <div className="prose prose-lg max-w-none text-[rgba(1,44,64,0.7)] font-(family-name:--font-dm-sans)">
+                <PortableText
+                  value={project.challenge as PortableTextBlock[]}
+                />
                 <p>
                   Conteúdo do desafio disponível após preenchimento no Sanity
                   Studio.
@@ -345,6 +384,7 @@ export function CasePageClient({ project }: CasePageClientProps) {
             </h2>
             {Array.isArray(project.solution) && project.solution.length > 0 ? (
               <div className="prose prose-lg max-w-none text-[rgba(1,44,64,0.7)] font-(family-name:--font-dm-sans)">
+                <PortableText value={project.solution as PortableTextBlock[]} />
                 <p>
                   Conteúdo da solução disponível após preenchimento no Sanity
                   Studio.
@@ -391,9 +431,8 @@ export function CasePageClient({ project }: CasePageClientProps) {
               </div>
             ) : (
               <p className="text-[rgba(1,44,64,0.5)] font-(family-name:--font-dm-sans)">
-                Resultados em breve. Preencha o campo
-                {" "}
-                &ldquo;Resultados&rdquo; no Sanity Studio para exibir aqui.
+                Resultados em breve. Preencha o campo &ldquo;Resultados&rdquo;
+                no Sanity Studio para exibir aqui.
               </p>
             )}
           </div>

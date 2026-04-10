@@ -4,12 +4,22 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, X } from "lucide-react";
-import {
-  projectPlaceholders,
-  type ProjectRecord,
-} from "@/content/projectPlaceholders";
 
-type Project = ProjectRecord;
+interface Project {
+  _id: string;
+  title: string;
+  slug: { current: string };
+  client?: string;
+  tagline: string;
+  brandColor?: string;
+  tags?: string[];
+  techStack?: string[];
+  liveUrl?: string;
+  heroImage?: {
+    asset: { url: string };
+    alt?: string;
+  };
+}
 
 interface ProjectsPageClientProps {
   projects: Project[];
@@ -135,7 +145,7 @@ function ProjectCard({ project }: { project: Project }) {
 }
 
 export function ProjectsPageClient({ projects }: ProjectsPageClientProps) {
-  const items = projects.length > 0 ? projects : projectPlaceholders;
+  const items = projects;
 
   // Coletar todas as tags únicas
   const allTags = Array.from(new Set(items.flatMap((p) => p.tags ?? [])));

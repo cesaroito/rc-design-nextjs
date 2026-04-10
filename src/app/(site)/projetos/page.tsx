@@ -5,11 +5,8 @@ import { ProjectsPageClient } from "@/components/sections/ProjectsPageClient";
 
 export const metadata: Metadata = {
   title: "Projetos",
-  description:
-    "Cases e portfólio da RC Design. Veja como transformamos desafios reais em produtos que escalam.",
+  description: "Cases e portfólio da RC Design.",
 };
-
-export const revalidate = false;
 
 interface SanityProject {
   _id: string;
@@ -38,9 +35,14 @@ export default async function ProjetosPage() {
     tags: ["projects"],
   });
 
+  console.log(
+    "PROJETOS:",
+    JSON.stringify(projects?.length),
+    projects?.[0]?.title,
+  );
+
   return (
     <>
-      {/* Hero da página */}
       <div className="px-4 md:px-6 py-12 md:py-16 border-b border-[rgba(0,112,140,0.08)] bg-white">
         <div className="max-w-7xl mx-auto">
           <div className="text-xs font-semibold text-[#00708C] uppercase tracking-widest mb-3 font-(family-name:--font-dm-sans)">
@@ -56,8 +58,6 @@ export default async function ProjetosPage() {
           </p>
         </div>
       </div>
-
-      {/* Grid com filtros */}
       <ProjectsPageClient projects={projects ?? []} />
     </>
   );

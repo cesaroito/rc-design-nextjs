@@ -9,8 +9,6 @@ export const metadata: Metadata = {
     "Projetos personalizados, análise de dados, painéis, games corporativos e IA aplicada. Soluções que se adaptam ao seu negócio.",
 };
 
-export const revalidate = false;
-
 interface SanityService {
   _id: string;
   title: string;

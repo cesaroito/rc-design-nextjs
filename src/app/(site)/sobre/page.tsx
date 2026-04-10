@@ -9,8 +9,6 @@ export const metadata: Metadata = {
     "Conheça a RC Design — tecnologia que resolve problemas reais para empresas e cidades. Nossa missão, valores e equipe.",
 };
 
-export const revalidate = false;
-
 interface SanityTeamMember {
   _id: string;
   name: string;

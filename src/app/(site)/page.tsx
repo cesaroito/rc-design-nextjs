@@ -6,8 +6,6 @@ import { CTASection } from "@/components/sections/CTASection";
 import { sanityFetch } from "@/lib/sanity/fetch";
 import { featuredProjectsQuery, allProductsQuery } from "@/lib/sanity/queries";
 
-export const revalidate = false;
-
 interface SanityProject {
   _id: string;
   title: string;
