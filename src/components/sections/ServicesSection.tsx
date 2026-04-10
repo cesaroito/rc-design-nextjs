@@ -113,7 +113,7 @@ export function ServicesSection() {
           <div className="relative bg-linear-to-br from-[#012C40] to-[#00708C] rounded-2xl p-6 flex flex-col justify-between overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-8 translate-x-8" />
             <div>
-              <h3 className="font-(family-name:--font-plus-jakarta) font-semibold text-white text-lg mb-2">
+              <h3 className="font-(family-name:--font-plus-jakarta) font-semibold !text-white text-lg mb-2">
                 Tem um projeto em mente?
               </h3>
               <p className="text-sm text-white/70 leading-relaxed font-(family-name:--font-dm-sans)">
