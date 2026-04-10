@@ -1,4 +1,27 @@
 import Link from "next/link";
+import Image from "next/image";
+import { whatsappUrl } from "@/lib/utils";
+
+interface SiteSettings {
+  siteTitle?: string;
+  logoDark?: { asset: { url: string }; alt?: string };
+  contact?: {
+    email?: string;
+    whatsapp?: string;
+    whatsappMessage?: string;
+    city?: string;
+  };
+  social?: {
+    linkedin?: string;
+    github?: string;
+    instagram?: string;
+    twitter?: string;
+  };
+}
+
+interface FooterProps {
+  settings?: SiteSettings | null;
+}
 
 const links = {
   servicos: [
@@ -20,8 +43,20 @@ const links = {
   ],
 };
 
-export function Footer() {
+export function Footer({ settings }: FooterProps) {
   const year = new Date().getFullYear();
+  const siteTitle = settings?.siteTitle ?? "RC Design";
+  const logoDarkUrl = settings?.logoDark?.asset?.url;
+  const logoDarkAlt = settings?.logoDark?.alt ?? siteTitle;
+  const city = settings?.contact?.city ?? "São Paulo, Brasil";
+  const email = settings?.contact?.email;
+  const whatsapp = settings?.contact?.whatsapp;
+  const wpMessage =
+    settings?.contact?.whatsappMessage ??
+    "Olá! Vim pelo site e quero saber mais.";
+  const linkedin = settings?.social?.linkedin;
+  const github = settings?.social?.github;
+  const instagram = settings?.social?.instagram;
 
   return (
     <footer className="bg-[#012C40] text-white">
@@ -31,21 +66,91 @@ export function Footer() {
           {/* Coluna brand */}
           <div className="lg:col-span-1">
             <Link href="/" className="flex items-center gap-2 mb-4 group w-fit">
-              <div className="w-8 h-8 rounded-lg bg-linear-to-br from-[#00708C] to-[#012C40] border border-white/20 flex items-center justify-center group-hover:scale-105 transition-transform">
-                <span className="text-white font-bold text-xs font-(family-name:--font-plus-jakarta)">
-                  RC
-                </span>
-              </div>
-              <span className="font-semibold text-white font-(family-name:--font-plus-jakarta)">
-                RC Design
-              </span>
+              {logoDarkUrl ? (
+                <Image
+                  src={logoDarkUrl}
+                  alt={logoDarkAlt}
+                  width={120}
+                  height={32}
+                  className="h-8 w-auto object-contain group-hover:opacity-80 transition-opacity"
+                />
+              ) : (
+                <>
+                  <div className="w-8 h-8 rounded-lg bg-linear-to-br from-[#00708C] to-[#012C40] border border-white/20 flex items-center justify-center group-hover:scale-105 transition-transform">
+                    <span className="text-white font-bold text-xs font-(family-name:--font-plus-jakarta)">
+                      RC
+                    </span>
+                  </div>
+                  <span className="font-semibold text-white font-(family-name:--font-plus-jakarta)">
+                    {siteTitle}
+                  </span>
+                </>
+              )}
             </Link>
-            <p className="text-sm text-white/60 leading-relaxed mb-6 font-(family-name:--font-dm-sans)">
+
+            <p className="text-sm text-white/60 leading-relaxed mb-4 font-(family-name:--font-dm-sans)">
               Tecnologia que escala com o seu negócio. Projetos personalizados,
               IA aplicada e produtos prontos para usar.
             </p>
-            <p className="text-xs text-white/40 font-(family-name:--font-dm-sans)">
-              São Paulo, Brasil
+
+            {/* Contato */}
+            <div className="flex flex-col gap-2 mb-4">
+              {email && (
+                <a
+                  href={`mailto:${email}`}
+                  className="text-xs text-white/50 hover:text-white/80 transition-colors font-(family-name:--font-dm-sans)"
+                >
+                  {email}
+                </a>
+              )}
+              {whatsapp && (
+                <a
+                  href={whatsappUrl(whatsapp, wpMessage)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-white/50 hover:text-white/80 transition-colors font-(family-name:--font-dm-sans)"
+                >
+                  WhatsApp
+                </a>
+              )}
+            </div>
+
+            {/* Redes sociais */}
+            <div className="flex gap-3">
+              {linkedin && (
+                <a
+                  href={linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-white/40 hover:text-white/70 transition-colors font-(family-name:--font-dm-sans)"
+                >
+                  LinkedIn
+                </a>
+              )}
+              {github && (
+                <a
+                  href={github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-white/40 hover:text-white/70 transition-colors font-(family-name:--font-dm-sans)"
+                >
+                  GitHub
+                </a>
+              )}
+              {instagram && (
+                <a
+                  href={instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-white/40 hover:text-white/70 transition-colors font-(family-name:--font-dm-sans)"
+                >
+                  Instagram
+                </a>
+              )}
+            </div>
+
+            <p className="text-xs text-white/30 mt-4 font-(family-name:--font-dm-sans)">
+              {city}
             </p>
           </div>
 
@@ -112,7 +217,7 @@ export function Footer() {
       <div className="border-t border-white/10">
         <div className="container-rc py-6 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-white/40 font-(family-name:--font-dm-sans)">
-            © {year} RC Design. Todos os direitos reservados.
+            © {year} {siteTitle}. Todos os direitos reservados.
           </p>
           <div className="flex items-center gap-6">
             <Link

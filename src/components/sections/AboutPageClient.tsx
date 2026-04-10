@@ -1,6 +1,12 @@
 "use client";
 
-import { LinkedinIcon, GithubIcon, ArrowRight } from "lucide-react";
+import {
+  LinkedinIcon,
+  GithubIcon,
+  ArrowRight,
+  Linkedin,
+  Github,
+} from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -119,7 +125,7 @@ function MemberCard({ member }: { member: TeamMember }) {
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-xs text-[rgba(1,44,64,0.5)] hover:text-[#00708C] transition-colors font-(family-name:--font-dm-sans)"
           >
-            <LinkedinIcon className="w-3.5 h-3.5" />
+            <Linkedin className="w-3.5 h-3.5" />
             LinkedIn
           </a>
         ) : null}
@@ -130,7 +136,7 @@ function MemberCard({ member }: { member: TeamMember }) {
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 text-xs text-[rgba(1,44,64,0.5)] hover:text-[#00708C] transition-colors font-(family-name:--font-dm-sans)"
           >
-            <GithubIcon className="w-3.5 h-3.5" />
+            <Github className="w-3.5 h-3.5" />
             GitHub
           </a>
         ) : null}

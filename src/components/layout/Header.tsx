@@ -2,10 +2,24 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { NavLink } from "./NavLink";
 import { Button } from "@/components/ui/Button";
-import { cn } from "@/lib/utils";
+import { cn, whatsappUrl } from "@/lib/utils";
+
+interface SiteSettings {
+  siteTitle?: string;
+  logo?: { asset: { url: string }; alt?: string };
+  contact?: {
+    whatsapp?: string;
+    whatsappMessage?: string;
+  };
+}
+
+interface HeaderProps {
+  settings?: SiteSettings | null;
+}
 
 const navLinks = [
   { href: "/servicos", label: "Serviços" },
@@ -15,9 +29,19 @@ const navLinks = [
   { href: "/blog", label: "Blog" },
 ];
 
-export function Header() {
+export function Header({ settings }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  const siteTitle = settings?.siteTitle ?? "RC Design";
+  const logoUrl = settings?.logo?.asset?.url;
+  const logoAlt = settings?.logo?.alt ?? siteTitle;
+  const whatsapp = settings?.contact?.whatsapp;
+  const wpMessage =
+    settings?.contact?.whatsappMessage ??
+    "Olá! Vim pelo site e quero saber mais.";
+  const ctaHref = whatsapp ? whatsappUrl(whatsapp, wpMessage) : "/contato";
+  const ctaIsExternal = !!whatsapp;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -25,7 +49,6 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Fechar menu ao redimensionar para desktop
   useEffect(() => {
     const onResize = () => {
       if (window.innerWidth >= 1024) setMenuOpen(false);
@@ -47,14 +70,26 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-[#00708C] to-[#012C40] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-200">
-              <span className="text-white font-bold text-xs font-(family-name:--font-plus-jakarta)">
-                RC
-              </span>
-            </div>
-            <span className="font-semibold text-[#012C40] font-(family-name:--font-plus-jakarta) hidden sm:block">
-              RC Design
-            </span>
+            {logoUrl ? (
+              <Image
+                src={logoUrl}
+                alt={logoAlt}
+                width={120}
+                height={32}
+                className="h-8 w-auto object-contain group-hover:opacity-80 transition-opacity"
+              />
+            ) : (
+              <>
+                <div className="w-8 h-8 rounded-lg bg-linear-to-br from-[#00708C] to-[#012C40] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-200">
+                  <span className="text-white font-bold text-xs font-(family-name:--font-plus-jakarta)">
+                    RC
+                  </span>
+                </div>
+                <span className="font-semibold text-[#012C40] font-(family-name:--font-plus-jakarta) hidden sm:block">
+                  {siteTitle}
+                </span>
+              </>
+            )}
           </Link>
 
           {/* Navegação desktop */}
@@ -68,13 +103,19 @@ export function Header() {
 
           {/* CTA desktop */}
           <div className="hidden lg:flex items-center gap-3">
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={() => (window.location.href = "/contato")}
-            >
-              Fale conosco
-            </Button>
+            {ctaIsExternal ? (
+              <a href={ctaHref} target="_blank" rel="noopener noreferrer">
+                <Button variant="primary" size="sm">
+                  Fale conosco
+                </Button>
+              </a>
+            ) : (
+              <Link href={ctaHref}>
+                <Button variant="primary" size="sm">
+                  Fale conosco
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Botão menu mobile */}
@@ -113,17 +154,24 @@ export function Header() {
             </NavLink>
           ))}
           <div className="pt-3">
-            <Button
-              variant="primary"
-              size="md"
-              className="w-full"
-              onClick={() => {
-                setMenuOpen(false);
-                window.location.href = "/contato";
-              }}
-            >
-              Fale conosco
-            </Button>
+            {ctaIsExternal ? (
+              <a
+                href={ctaHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setMenuOpen(false)}
+              >
+                <Button variant="primary" size="md" className="w-full">
+                  Fale conosco
+                </Button>
+              </a>
+            ) : (
+              <Link href={ctaHref} onClick={() => setMenuOpen(false)}>
+                <Button variant="primary" size="md" className="w-full">
+                  Fale conosco
+                </Button>
+              </Link>
+            )}
           </div>
         </nav>
       </div>

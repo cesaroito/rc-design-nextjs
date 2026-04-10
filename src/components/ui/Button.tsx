@@ -62,7 +62,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       className={cn(
         // Base
         "inline-flex items-center justify-center gap-2",
-        "font-semibold font-[family-name:var(--font-dm-sans)]",
+        "font-semibold font-(family-name:--font-dm-sans)",
         "transition-all duration-300",
         // Focus
         "focus-visible:outline-none focus-visible:ring-2",

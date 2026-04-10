@@ -1,49 +1,64 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { GoogleTagManager } from "@next/third-parties/google";
+import { sanityFetch } from "@/lib/sanity/fetch";
+import { siteSettingsQuery } from "@/lib/sanity/queries";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? "https://rcdesign.com.br",
-  ),
-  title: {
-    default: "RC Design — Tecnologia que escala com o seu negócio",
-    template: "%s | RC Design",
-  },
-  description:
-    "Projetos personalizados, análise de dados, painéis, games corporativos e IA aplicada. Entendemos cada cliente e entregamos resultados.",
-  keywords: [
-    "desenvolvimento web",
-    "análise de dados",
-    "inteligência artificial",
-    "dashboard",
-    "games corporativos",
-    "São Paulo",
-  ],
-  authors: [{ name: "RC Design", url: "https://rcdesign.com.br" }],
-  creator: "RC Design",
-  openGraph: {
-    type: "website",
-    locale: "pt_BR",
-    url: "https://rcdesign.com.br",
-    siteName: "RC Design",
-    title: "RC Design — Tecnologia que escala com o seu negócio",
-    description:
-      "Projetos personalizados, análise de dados, painéis, games corporativos e IA aplicada.",
-  },
-  twitter: {
-    card: "summary_large_image",
-    creator: "@rcdesign",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+interface SiteSettings {
+  siteTitle?: string;
+  siteDescription?: string;
+  siteUrl?: string;
+  gtmId?: string;
+  contact?: {
+    email?: string;
+    whatsapp?: string;
+    whatsappMessage?: string;
+    city?: string;
+  };
+  social?: {
+    linkedin?: string;
+    github?: string;
+    instagram?: string;
+  };
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await sanityFetch<SiteSettings>({
+    query: siteSettingsQuery,
+    tags: ["settings"],
+  });
+
+  const title = settings?.siteTitle ?? "RC Design";
+  const description =
+    settings?.siteDescription ?? "Tecnologia que escala com o seu negócio.";
+  const url = settings?.siteUrl ?? "https://rcdesign.com.br";
+
+  return {
+    metadataBase: new URL(url),
+    title: {
+      default: `${title} — Tecnologia que escala com o seu negócio`,
+      template: `%s | ${title}`,
+    },
+    description,
+    authors: [{ name: title, url }],
+    creator: title,
+    openGraph: {
+      type: "website",
+      locale: "pt_BR",
+      url,
+      siteName: title,
+      title: `${title} — Tecnologia que escala com o seu negócio`,
+      description,
+    },
+    twitter: {
+      card: "summary_large_image",
+    },
+    robots: {
       index: true,
       follow: true,
-      "max-image-preview": "large",
     },
-  },
-};
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#012C40",
@@ -52,14 +67,25 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const settings = await sanityFetch<SiteSettings>({
+    query: siteSettingsQuery,
+    tags: ["settings"],
+  });
+
+  const gtmId = settings?.gtmId;
+
   return (
     <html lang="pt-BR" suppressHydrationWarning>
-      <body>{children}</body>
+      <body>
+        {children}
+
+        {gtmId && <GoogleTagManager gtmId={gtmId} />}
+      </body>
     </html>
   );
 }

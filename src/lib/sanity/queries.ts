@@ -22,9 +22,12 @@ export const siteSettingsQuery = groq`
     siteDescription,
     siteUrl,
     ogImage { ${img} },
+    logo { ${img} },
+    logoDark { ${img} },
     contact,
     social,
-    maintenanceMode
+    maintenanceMode,
+    gtmId
   }
 `;
 
@@ -118,7 +121,7 @@ export const postSlugsQuery = groq`
 // ── Team & Testimonials ───────────────────────────────────
 export const activeTeamQuery = groq`
   *[_type == "teamMember" && isActive == true] | order(name asc){
-    _id, name, role, bio, expertise, linkedIn,
+    _id, name, role, bio, expertise, linkedIn, github,
     photo { ${img} }
   }
 `;
