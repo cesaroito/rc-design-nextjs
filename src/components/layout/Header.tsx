@@ -36,12 +36,8 @@ export function Header({ settings }: HeaderProps) {
   const siteTitle = settings?.siteTitle ?? "RC Design";
   const logoUrl = settings?.logo?.asset?.url;
   const logoAlt = settings?.logo?.alt ?? siteTitle;
-  const whatsapp = settings?.contact?.whatsapp;
-  const wpMessage =
-    settings?.contact?.whatsappMessage ??
-    "Olá! Vim pelo site e quero saber mais.";
-  const ctaHref = whatsapp ? whatsappUrl(whatsapp, wpMessage) : "/contato";
-  const ctaIsExternal = !!whatsapp;
+  const ctaHref = "/contato";
+  const ctaIsExternal = false;
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
