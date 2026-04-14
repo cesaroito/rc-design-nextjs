@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
-import { SSMClient, GetParametersCommand } from "@aws-sdk/client-ssm";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const projectTypeLabels: Record<string, string> = {
   "projeto-personalizado": "Projeto personalizado",
@@ -20,38 +21,6 @@ const budgetLabels: Record<string, string> = {
   "nao-definido": "Ainda não definido",
 };
 
-async function getSESClient(): Promise<SESClient> {
-  const ssm = new SSMClient({ region: "us-east-1" });
-
-  const { Parameters } = await ssm.send(
-    new GetParametersCommand({
-      Names: [
-        "/rc-design/ses/access-key-id",
-        "/rc-design/ses/secret-access-key",
-      ],
-      WithDecryption: true,
-    }),
-  );
-
-  const accessKeyId =
-    Parameters?.find((p) => p.Name === "/rc-design/ses/access-key-id")?.Value ??
-    "";
-  const secretAccessKey =
-    Parameters?.find((p) => p.Name === "/rc-design/ses/secret-access-key")
-      ?.Value ?? "";
-
-  console.log(
-    "[contact] SSM loaded, keyLength:",
-    accessKeyId.length,
-    secretAccessKey.length,
-  );
-
-  return new SESClient({
-    region: "us-east-1",
-    credentials: { accessKeyId, secretAccessKey },
-  });
-}
-
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -69,22 +38,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "E-mail inválido" }, { status: 400 });
     }
 
-    const ses = await getSESClient();
-    const toEmail = process.env.CONTACT_TO_EMAIL ?? "dev@rcdesign.com.br";
-    const fromEmail = process.env.CONTACT_FROM_EMAIL ?? "dev@rcdesign.com.br";
+    const fromEmail = "RC Design <dev@rcdesign.com.br>";
+    const toEmail = "dev@rcdesign.com.br";
 
-    const internalEmail = new SendEmailCommand({
-      Source: fromEmail,
-      Destination: { ToAddresses: [toEmail] },
-      Message: {
-        Subject: {
-          Data: `[RC Design] Novo contato: ${projectTypeLabels[projectType] ?? projectType} — ${name}`,
-          Charset: "UTF-8",
-        },
-        Body: {
-          Html: {
-            Charset: "UTF-8",
-            Data: `
+    // Email interno para a RC Design
+    await resend.emails.send({
+      from: fromEmail,
+      to: toEmail,
+      subject: `[RC Design] Novo contato: ${projectTypeLabels[projectType] ?? projectType} — ${name}`,
+      html: `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta charset="UTF-8"></head>
@@ -111,23 +73,14 @@ export async function POST(req: NextRequest) {
   </div>
 </body>
 </html>`,
-          },
-        },
-      },
     });
 
-    const confirmationEmail = new SendEmailCommand({
-      Source: fromEmail,
-      Destination: { ToAddresses: [email] },
-      Message: {
-        Subject: {
-          Data: "Recebemos seu contato — RC Design",
-          Charset: "UTF-8",
-        },
-        Body: {
-          Html: {
-            Charset: "UTF-8",
-            Data: `
+    // Email de confirmação para o cliente
+    await resend.emails.send({
+      from: fromEmail,
+      to: email,
+      subject: "Recebemos seu contato — RC Design",
+      html: `
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head><meta charset="UTF-8"></head>
@@ -148,12 +101,7 @@ export async function POST(req: NextRequest) {
   </div>
 </body>
 </html>`,
-          },
-        },
-      },
     });
-
-    await Promise.all([ses.send(internalEmail), ses.send(confirmationEmail)]);
 
     return NextResponse.json({ success: true });
   } catch (err) {
