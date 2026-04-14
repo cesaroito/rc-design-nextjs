@@ -1,3 +1,4 @@
+cat > amplify.yml << 'EOF'
 version: 1
 frontend:
   phases:
@@ -20,3 +21,4 @@ frontend:
     paths:
       - node_modules/**/*
       - .next/cache/**/*
+EOF
