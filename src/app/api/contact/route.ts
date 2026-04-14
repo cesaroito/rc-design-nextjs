@@ -101,11 +101,11 @@ export async function POST(req: NextRequest) {
       { message: "Mensagem enviada com sucesso" },
       { status: 200 },
     );
-  } catch (error) {
-    console.error("Erro ao enviar email:", error);
-    return NextResponse.json(
-      { message: "Erro interno do servidor. Tente novamente." },
-      { status: 500 },
-    );
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    const errorStack = err instanceof Error ? err.stack : "";
+    console.error("[contact] Error:", errorMessage);
+    console.error("[contact] Stack:", errorStack);
+    return NextResponse.json({ message: errorMessage }, { status: 500 });
   }
 }
