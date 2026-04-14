@@ -1,11 +1,22 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
 
+const accessKeyId = process.env.SES_ACCESS_KEY_ID ?? "";
+const secretAccessKey = process.env.SES_SECRET_ACCESS_KEY ?? "";
+const region = process.env.SES_REGION ?? "us-east-1";
+
+console.log("[contact] SES config:", {
+  region,
+  accessKeyIdLength: accessKeyId.length,
+  secretAccessKeyLength: secretAccessKey.length,
+  accessKeyIdPrefix: accessKeyId.substring(0, 4),
+});
+
 const ses = new SESClient({
-  region: process.env.SES_REGION ?? "us-east-1",
+  region,
   credentials: {
-    accessKeyId: process.env.SES_ACCESS_KEY_ID!,
-    secretAccessKey: process.env.SES_SECRET_ACCESS_KEY!,
+    accessKeyId,
+    secretAccessKey,
   },
 });
 
