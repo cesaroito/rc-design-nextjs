@@ -13,11 +13,7 @@ console.log("[contact] SES config:", {
 });
 
 const ses = new SESClient({
-  region,
-  credentials: {
-    accessKeyId,
-    secretAccessKey,
-  },
+  region: process.env.SES_REGION ?? "us-east-1",
 });
 
 const projectTypeLabels: Record<string, string> = {
