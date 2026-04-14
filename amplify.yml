@@ -6,7 +6,11 @@ frontend:
         - npm ci
     build:
       commands:
-        - env | grep -e SES_REGION -e SES_ACCESS_KEY_ID -e SES_SECRET_ACCESS_KEY -e CONTACT_FROM_EMAIL -e CONTACT_TO_EMAIL -e SANITY_API_TOKEN -e SANITY_REVALIDATE_SECRET >> .env.production
+        - echo "RESEND_API_KEY=$RESEND_API_KEY" >> .env.production
+        - echo "SANITY_API_TOKEN=$SANITY_API_TOKEN" >> .env.production
+        - echo "SANITY_REVALIDATE_SECRET=$SANITY_REVALIDATE_SECRET" >> .env.production
+        - echo "CONTACT_FROM_EMAIL=$CONTACT_FROM_EMAIL" >> .env.production
+        - echo "CONTACT_TO_EMAIL=$CONTACT_TO_EMAIL" >> .env.production
         - npm run build
   artifacts:
     baseDirectory: .next
