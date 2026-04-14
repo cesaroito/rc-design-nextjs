@@ -48,10 +48,6 @@ export async function POST(req: NextRequest) {
 
     const ses = new SESClient({
       region: process.env.SES_REGION ?? "us-east-1",
-      credentials: {
-        accessKeyId: process.env.SES_ACCESS_KEY_ID!,
-        secretAccessKey: process.env.SES_SECRET_ACCESS_KEY!,
-      },
     });
 
     const toEmail = process.env.CONTACT_TO_EMAIL!;
