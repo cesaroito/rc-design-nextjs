@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { SESClient, SendEmailCommand } from "@aws-sdk/client-ses";
+import { SSMClient, GetParametersCommand } from "@aws-sdk/client-ssm";
 
 const projectTypeLabels: Record<string, string> = {
   "projeto-personalizado": "Projeto personalizado",
@@ -19,17 +20,39 @@ const budgetLabels: Record<string, string> = {
   "nao-definido": "Ainda não definido",
 };
 
-export async function POST(req: NextRequest) {
-  // Debug — verificar variáveis de ambiente no runtime
-  const debugInfo = {
-    SES_REGION: process.env.SES_REGION,
-    SES_ACCESS_KEY_ID: process.env.SES_ACCESS_KEY_ID?.substring(0, 8),
-    SES_SECRET: process.env.SES_SECRET_ACCESS_KEY?.substring(0, 8),
-    CONTACT_FROM_EMAIL: process.env.CONTACT_FROM_EMAIL,
-    NODE_ENV: process.env.NODE_ENV,
-  };
-  console.log("[contact] ENV DEBUG:", JSON.stringify(debugInfo));
+async function getSESClient(): Promise<SESClient> {
+  const ssm = new SSMClient({ region: "us-east-1" });
 
+  const { Parameters } = await ssm.send(
+    new GetParametersCommand({
+      Names: [
+        "/rc-design/ses/access-key-id",
+        "/rc-design/ses/secret-access-key",
+      ],
+      WithDecryption: true,
+    }),
+  );
+
+  const accessKeyId =
+    Parameters?.find((p) => p.Name === "/rc-design/ses/access-key-id")?.Value ??
+    "";
+  const secretAccessKey =
+    Parameters?.find((p) => p.Name === "/rc-design/ses/secret-access-key")
+      ?.Value ?? "";
+
+  console.log(
+    "[contact] SSM loaded, keyLength:",
+    accessKeyId.length,
+    secretAccessKey.length,
+  );
+
+  return new SESClient({
+    region: "us-east-1",
+    credentials: { accessKeyId, secretAccessKey },
+  });
+}
+
+export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { name, email, company, projectType, budget, message } = body;
@@ -46,12 +69,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: "E-mail inválido" }, { status: 400 });
     }
 
-    const ses = new SESClient({
-      region: process.env.SES_REGION ?? "us-east-1",
-    });
-
-    const toEmail = process.env.CONTACT_TO_EMAIL!;
-    const fromEmail = process.env.CONTACT_FROM_EMAIL!;
+    const ses = await getSESClient();
+    const toEmail = process.env.CONTACT_TO_EMAIL ?? "dev@rcdesign.com.br";
+    const fromEmail = process.env.CONTACT_FROM_EMAIL ?? "dev@rcdesign.com.br";
 
     const internalEmail = new SendEmailCommand({
       Source: fromEmail,
